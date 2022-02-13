@@ -1,11 +1,19 @@
 // Đối tượng Validator
 function Validator(options) {
+    function getParent(element, selector) {
+        while (element.parentElement) {
+            if (element.parentElement.matches(selector)) {
+                return element.parentElement;
+            }
+            element = element.parentElement;
+        }
+    }
 
     var selectorRules = {};
 
     // Hàm thực hiện validate
     function validate(inputElement, rule) {
-        var errorElement = inputElement.parentElement.querySelector(options.errorSelector);
+        var errorElement = getParent(inputElement, options.formGroupSelector).querySelector(options.errorSelector);
         var errorMessage;
 
         // Lấy ra các rule của selector
@@ -21,11 +29,11 @@ function Validator(options) {
                     
         if (errorMessage) {
             errorElement.innerText = errorMessage;
-            inputElement.parentElement.classList.add('invalid');
+            getParent(inputElement, options.formGroupSelector).classList.add('invalid');
         }
         else {
             errorElement.innerText = '';
-            inputElement.parentElement.classList.remove('invalid');
+            getParent(inputElement, options.formGroupSelector).classList.remove('invalid');
         }
 
         return !errorMessage;
@@ -57,7 +65,8 @@ function Validator(options) {
 
                     var enableInputs = formElement.querySelectorAll('[name]');
                     var formValues = Array.from(enableInputs).reduce(function(values, input) {
-                        return (values[input.name] = input.value) && values;
+                        values[input.name] = input.value;
+                        return values;
                     }, {});
                     options.onSubmit(formValues);
                 }
@@ -80,7 +89,7 @@ function Validator(options) {
             }
 
             var inputElement = formElement.querySelector(rule.selector);
-            var errorElement = inputElement.parentElement.querySelector(options.errorSelector);
+            var errorElement = getParent(inputElement, options.formGroupSelector).querySelector(options.errorSelector);
 
             if (inputElement) {
                 // Xử lý trường hợp blur ra ngoài
@@ -93,7 +102,7 @@ function Validator(options) {
                 // Xử lý mỗi khi người dùng nhập vào input
                 inputElement.oninput = function() {
                     errorElement.innerText = '';
-                    inputElement.parentElement.classList.remove('invalid');
+                    getParent(inputElement, options.formGroupSelector).classList.remove('invalid');
                 }
             }
         });
